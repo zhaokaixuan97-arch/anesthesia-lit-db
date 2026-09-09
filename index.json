@@ -1,5 +1,20 @@
 {
  "count": 8,
+ "stats": {
+  "papers": 8,
+  "papers_files": 16,
+  "papers_bytes": 48382,
+  "index_bytes": 51119,
+  "avg_bytes": 6047,
+  "repo_bytes": 179200,
+  "per_paper_bytes": 22400,
+  "limit_bytes": 1073741824,
+  "used_bytes": 179200,
+  "used_pct": 0.017,
+  "remaining_bytes": 1073562624,
+  "remaining_papers": 47926,
+  "basis": "repo"
+ },
  "papers": [
   {
    "id": "2026-ahmad-difficult-airway-society",

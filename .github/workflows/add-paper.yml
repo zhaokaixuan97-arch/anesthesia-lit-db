@@ -43,6 +43,13 @@ jobs:
           ISSUE_URL: ${{ github.event.issue.html_url }}
         run: python scripts/add_from_issue.py
 
+      - name: 读取仓库体积（用于容量仪表盘）
+        if: steps.add.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: echo "REPO_SIZE_KB=$(gh api "repos/$REPO" --jq .size || echo 0)" >> "$GITHUB_ENV"
+
       - name: 重建索引与网页
         if: steps.add.outcome == 'success'
         run: |

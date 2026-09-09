@@ -37,7 +37,7 @@ try:
 except ImportError as exc:
     sys.exit(f"无法导入 scripts/build_index.py：{exc}")
 
-MARKER = "<script>\nconst state = { papers: [] };"
+MARKER = "<!-- LIT_DB_DATA_PLACEHOLDER"
 
 
 def find_template() -> Path:
@@ -56,7 +56,8 @@ def find_template() -> Path:
 def build() -> tuple[str, int, Path]:
     template = find_template()
     records = build_index.load_papers()
-    payload = {"count": len(records), "papers": records}
+    stats = build_index.compute_stats(records)
+    payload = {"count": len(records), "stats": stats, "papers": records}
 
     # 内联数据；把 </ 转义，避免提前结束 <script> 标签
     data_js = json.dumps(payload, ensure_ascii=False, separators=(",", ":"))

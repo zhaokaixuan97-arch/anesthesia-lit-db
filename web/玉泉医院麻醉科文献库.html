@@ -71,6 +71,12 @@
   }
   .addbox button:hover{background:#0a4c76}
   .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
+  .dashrow{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:16px}
+  .dashrow:last-of-type{border-bottom:none}
+  .dashrow span{color:var(--muted)}
+  .dashrow b{font-weight:650}
+  .bar{height:10px;background:#e9eef2;border-radius:999px;overflow:hidden;margin:12px 0 6px}
+  .bar i{display:block;height:100%;background:var(--accent);border-radius:999px}
 
   /* ---- 搜索区 ---- */
   .searchbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
@@ -217,6 +223,14 @@
     </div>
   </details>
 
+  <details>
+    <summary>📊 数据库容量仪表盘</summary>
+    <div class="body">
+      <div id="dash"></div>
+      <p class="hint">上限按 GitHub 建议的仓库 1GB 计算。本库只存文本（题录 + 笔记），不存 PDF。</p>
+    </div>
+  </details>
+
   <!-- 搜索 -->
   <div class="searchbox">
     <label class="big" for="q">查什么？</label>
@@ -242,8 +256,37 @@
 
 <div class="toast" id="toast"></div>
 
+<!-- LIT_DB_DATA_PLACEHOLDER ：打包时会被替换成内联的文献数据，不要删这行 -->
 <script>
-const state = { papers: [] };
+const state = { papers: [], stats: null };
+
+function fmtBytes(b){
+  if(b == null) return '—';
+  if(b >= 1048576) return (b/1048576).toFixed(2) + ' MB';
+  return (b/1024).toFixed(1) + ' KB';
+}
+function renderDash(s){
+  const box = document.getElementById('dash');
+  if(!box) return;
+  if(!s){ box.innerHTML = '<p class="hint">暂无统计数据。</p>'; return; }
+  const rows = [
+    ['文献数', s.papers + ' 篇'],
+    ['文献数据体积', fmtBytes(s.papers_bytes)],
+    ['平均每篇', fmtBytes(s.avg_bytes)],
+  ];
+  if(s.repo_bytes) rows.push(['仓库总体积', fmtBytes(s.repo_bytes) + '（含历史）']);
+  rows.push(['容量上限', fmtBytes(s.limit_bytes)]);
+  rows.push(['已用', s.used_pct + '%']);
+  rows.push(['预计还能放', '约 ' + Number(s.remaining_papers).toLocaleString('zh-CN') + ' 篇']);
+
+  const pct = Math.max(0, Math.min(s.used_pct, 100));
+  box.innerHTML =
+    rows.map(r => `<div class="dashrow"><span>${r[0]}</span><b>${r[1]}</b></div>`).join('') +
+    `<div class="bar"><i style="width:${pct}%;min-width:${pct > 0 ? 2 : 0}px"></i></div>` +
+    `<p class="hint">${s.basis === 'repo'
+      ? '仓库体积由 GitHub 报告，含 git 历史。'
+      : '本地估算：每篇约占文本体积的 6 倍（含索引、网页与 git 历史）。'}</p>`;
+}
 
 function esc(s){
   return String(s == null ? '' : s)
@@ -415,6 +458,8 @@ async function boot(){
       data = await res.json();
     }
     state.papers = data.papers || [];
+    state.stats = data.stats || null;
+    renderDash(state.stats);
     const offline = !!window.__LIT_DB_DATA__;
     document.getElementById('sub').textContent =
       '共 ' + state.papers.length + ' 篇文献' + (offline ? ' · 离线版' : '') +

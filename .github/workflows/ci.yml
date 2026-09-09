@@ -47,6 +47,12 @@ jobs:
           python-version: '3.11'
       - name: 安装依赖
         run: python -m pip install --quiet pyyaml
+      - name: 读取仓库体积（用于容量仪表盘）
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+        run: echo "REPO_SIZE_KB=$(gh api "repos/$REPO" --jq .size || echo 0)" >> "$GITHUB_ENV"
+
       - name: 重建索引与单文件网页
         run: |
           python scripts/build_index.py

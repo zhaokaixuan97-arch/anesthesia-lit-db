@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import json
+import os
 import sqlite3
 import sys
 from pathlib import Path
@@ -32,6 +33,69 @@ FIELDS = ["id", "title", "authors", "first_author", "journal", "year", "volume",
           "issue", "pages", "doi", "pmid", "type", "topics", "tags",
           "evidence_level", "oa_status", "url", "status", "added_by",
           "added_date", "updated_date", "relevance", "abstract"]
+
+# GitHub 官方建议单个仓库保持在 1GB 以内
+LIMIT_BYTES = 1024 ** 3
+
+
+def _dir_bytes(path: Path) -> tuple[int, int]:
+    total = files = 0
+    if not path.exists():
+        return 0, 0
+    for p in path.rglob("*"):
+        if p.is_file():
+            try:
+                total += p.stat().st_size
+                files += 1
+            except OSError:
+                pass
+    return total, files
+
+
+def compute_stats(records: list[dict]) -> dict:
+    """容量仪表盘数据。
+
+    文献数据体积在本地精确计算；仓库总体积（含 git 历史）由 CI 通过
+    GitHub API 提供（环境变量 REPO_SIZE_KB，单位 KB），拿不到时用估算值。
+    """
+    papers_bytes, papers_files = _dir_bytes(PAPERS_DIR)
+    index_bytes = INDEX_JSON.stat().st_size if INDEX_JSON.exists() else 0
+
+    n = len(records)
+    avg = int(papers_bytes / n) if n else 0
+
+    repo_bytes = 0
+    raw = (os.environ.get("REPO_SIZE_KB") or "").strip()
+    if raw.isdigit():
+        repo_bytes = int(raw) * 1024
+
+    if repo_bytes:
+        # 用「仓库体积 / 篇数」估算每篇实际增量（含索引、网页与 git 历史）
+        per_paper = max(repo_bytes // n, 1) if n else 1
+        basis = "repo"
+        used_bytes = repo_bytes
+    else:
+        # 本地估算：每篇约占文本体积的 6 倍（索引 + 网页 + 历史）
+        per_paper = max(avg * 6, 1024)
+        basis = "estimate"
+        used_bytes = papers_bytes + index_bytes
+
+    remaining = max(LIMIT_BYTES - used_bytes, 0)
+    return {
+        "papers": n,
+        "papers_files": papers_files,
+        "papers_bytes": papers_bytes,
+        "index_bytes": index_bytes,
+        "avg_bytes": avg,
+        "repo_bytes": repo_bytes,
+        "per_paper_bytes": per_paper,
+        "limit_bytes": LIMIT_BYTES,
+        "used_bytes": used_bytes,
+        "used_pct": round(used_bytes / LIMIT_BYTES * 100, 3),
+        "remaining_bytes": remaining,
+        "remaining_papers": remaining // per_paper,
+        "basis": basis,
+    }
 
 
 def load_papers() -> list[dict]:
@@ -100,11 +164,12 @@ def build_sqlite(records: list[dict]) -> None:
     conn.close()
 
 
-def build_json(records: list[dict]) -> None:
+def build_json(records: list[dict], stats: dict) -> None:
     # 刻意不写入生成时间戳：保持输出确定性，这样 GitHub Actions 重建后
     # 只有在内容真的变化时才会产生提交，避免每次推送都多一个机器人提交。
     payload = {
         "count": len(records),
+        "stats": stats,
         "papers": records,
     }
     INDEX_JSON.write_text(
@@ -114,11 +179,14 @@ def build_json(records: list[dict]) -> None:
 
 def main() -> int:
     records = load_papers()
-    build_json(records)
+    stats = compute_stats(records)
+    build_json(records, stats)
     build_sqlite(records)
     print(f"已索引 {len(records)} 篇文献")
     print(f"  {INDEX_JSON.relative_to(ROOT)}  ({INDEX_JSON.stat().st_size/1024:.1f} KB)")
     print(f"  {INDEX_DB.relative_to(ROOT)}  ({INDEX_DB.stat().st_size/1024:.1f} KB)")
+    print(f"  文献数据 {stats['papers_bytes']/1024:.1f} KB"
+          f"（上限 1GB，已用 {stats['used_pct']}%，约可再放 {stats['remaining_papers']:,} 篇）")
     return 0
 
 
