@@ -95,7 +95,32 @@ python scripts/serve.py --open          # 本机打开
 python scripts/serve.py --lan           # 手机连同一 WiFi 可访问
 ```
 
-### 5. 命令行检索
+### 5. 打包成单文件网页，发给同事
+
+```bash
+python scripts/build_web.py
+```
+
+生成 `dist/麻醉科文献库.html`（约 60KB，**数据和界面都在一个文件里**）：
+
+- **双击就能打开**，不用装任何东西、不用联网
+- **直接发到微信群里**（同事点开 → 用浏览器打开）
+- 页面上自带「怎么用（三步）」和「给会用 AI 的同事：怎么把文献库接到 AI 里」两段说明
+- 手机上字体够大、按钮够大，常见主题可以一键点选，不用打字
+
+**想放成网址（微信群发链接更方便）**：把仓库根目录的 `index.html` 和 `index.json` 一起上传到任意静态托管即可，不需要构建。
+
+| 托管方式 | 费用 | 国内访问 | 说明 |
+|---|---|---|---|
+| 阿里云 OSS / 腾讯云 COS 静态网站 | 约 1 元/月 | 快 | 需实名账号；默认域名即可，绑自有域名要备案 |
+| Cloudflare Pages | 免费 | 一般 | 可直接连私有仓库；可用 Access 做邮箱白名单 |
+| Netlify | 免费 | 一般 | 可直接连私有仓库 |
+| GitHub Pages | 免费 | 慢/不稳 | 私有仓库开 Pages 需 GitHub Pro |
+
+> 注意：网页一旦放到公网，任何拿到链接的人都能看到**题录 + 摘要 + 科室笔记**。
+> 如果不想公开，就用单文件版在群里发文件，或让托管加上访问控制。
+
+### 6. 命令行检索
 
 ```bash
 python scripts/search.py "术后谵妄"
@@ -162,7 +187,13 @@ python mcp/server.py --selftest
 题录和笔记体积小，正常 clone 没问题。PDF 这类大文件建议放对象存储（如 Cloudflare R2，10GB 免费且出网流量免费）。
 
 **Q：网页能不能直接给主任看？**
-`index.html` 需要能读到 `index.json`。用 `python scripts/serve.py` 本机起服务，或部署到 GitHub Pages。**注意**：私有仓库要开 Pages 需要 GitHub Pro/Team；也可以只把题录层公开（题录是公开信息，本身无版权问题），PDF 和敏感内容另外存。
+可以。三种方式，按省事程度排：
+
+1. **单文件版**：`python scripts/build_web.py` 生成 `dist/麻醉科文献库.html`，发到群里，双击就能看。
+2. **局域网**：`python scripts/serve.py --lan`，同一 WiFi 下手机可访问。
+3. **放成网址**：把 `index.html` + `index.json` 上传到阿里云 OSS / Cloudflare Pages 等静态托管。
+
+**注意**：私有仓库要开 GitHub Pages 需要 GitHub Pro/Team；也可以只把题录层公开（题录是公开信息，本身无版权问题），PDF 和敏感内容另外存。
 
 **Q：文献 PDF 版权怎么办？**
 付费文献不要提交全文。要留全文就放对象存储，或只保存链接和自己的结构化笔记。OA 文献可以存链接。
