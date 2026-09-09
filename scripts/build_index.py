@@ -69,7 +69,10 @@ def compute_stats(records: list[dict]) -> dict:
     if raw.isdigit():
         repo_bytes = int(raw) * 1024
 
-    if repo_bytes:
+    # 仓库小于 1MB 时用本地估算：GitHub 报告的体积每次 push 都会变，
+    # 写进产物会让机器人每次都多提交一次，还会和人工推送抢跑（non-fast-forward）。
+    # 等仓库真的超过 1MB，说明文献量已经上来了，那时再用精确值。
+    if repo_bytes >= 1_000_000:
         # 用「仓库体积 / 篇数」估算每篇实际增量（含索引、网页与 git 历史）
         per_paper = max(repo_bytes // n, 1) if n else 1
         basis = "repo"
