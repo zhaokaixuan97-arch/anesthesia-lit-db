@@ -154,9 +154,10 @@ def main() -> int:
     target.mkdir(parents=True, exist_ok=True)
     (target / "meta.yaml").write_text(
         yaml.safe_dump(record, allow_unicode=True, sort_keys=False, width=100),
-        encoding="utf-8",
+        encoding="utf-8", newline="\n",
     )
-    (target / "notes.md").write_text(fm.render_notes(record, f"@{author}"), encoding="utf-8")
+    (target / "notes.md").write_text(
+        fm.render_notes(record, f"@{author}"), encoding="utf-8", newline="\n")
 
     # 写完立刻做一次隐私/结构体检；红线告警就整个回滚
     check = subprocess.run(

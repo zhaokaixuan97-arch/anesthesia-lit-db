@@ -205,10 +205,10 @@ def main() -> int:
         target.mkdir(parents=True, exist_ok=True)
         (target / "meta.yaml").write_text(
             yaml.safe_dump(rec, allow_unicode=True, sort_keys=False, width=100),
-            encoding="utf-8",
+            encoding="utf-8", newline="\n",
         )
         (target / "notes.md").write_text(
-            fm.render_notes(rec, args.added_by), encoding="utf-8")
+            fm.render_notes(rec, args.added_by), encoding="utf-8", newline="\n")
         created += 1
 
     if args.dry_run:

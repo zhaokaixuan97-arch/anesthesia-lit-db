@@ -176,7 +176,7 @@ def build_json(records: list[dict], stats: dict) -> None:
         "papers": records,
     }
     INDEX_JSON.write_text(
-        json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8"
+        json.dumps(payload, ensure_ascii=False, indent=1), encoding="utf-8", newline="\n"
     )
 
 

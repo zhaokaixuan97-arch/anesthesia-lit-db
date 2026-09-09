@@ -446,9 +446,10 @@ def cmd_add(args) -> int:
     target.mkdir(parents=True, exist_ok=True)
     (target / "meta.yaml").write_text(
         yaml.safe_dump(record, allow_unicode=True, sort_keys=False, width=100),
-        encoding="utf-8",
+        encoding="utf-8", newline="\n",
     )
-    (target / "notes.md").write_text(render_notes(record, args.added_by), encoding="utf-8")
+    (target / "notes.md").write_text(
+        render_notes(record, args.added_by), encoding="utf-8", newline="\n")
     print(f"已创建 {target}")
     print(f"  meta.yaml  ({record['type']}, {record['year']}, {record['journal']})")
     print("  notes.md   请人工补充 PICO 与结论")
@@ -473,7 +474,8 @@ def cmd_regen_notes(args) -> int:
             notes_path.with_suffix(".md.bak").write_text(
                 notes_path.read_text(encoding="utf-8"), encoding="utf-8")
         notes_path.write_text(
-            render_notes(record, record.get("added_by") or "unknown"), encoding="utf-8")
+            render_notes(record, record.get("added_by") or "unknown"),
+            encoding="utf-8", newline="\n")
         count += 1
     print(f"已重新生成 {count} 个 notes.md")
     return 0

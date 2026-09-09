@@ -81,8 +81,8 @@ def main() -> int:
     out_dist = ROOT / "dist" / args.name
     out_dist.parent.mkdir(exist_ok=True)
 
-    OUT_ROOT.write_text(html, encoding="utf-8")
-    out_dist.write_text(html, encoding="utf-8")
+    OUT_ROOT.write_text(html, encoding="utf-8", newline="\n")
+    out_dist.write_text(html, encoding="utf-8", newline="\n")
 
     size_kb = len(html.encode("utf-8")) / 1024
     print(f"模板：{template.relative_to(ROOT)}")
