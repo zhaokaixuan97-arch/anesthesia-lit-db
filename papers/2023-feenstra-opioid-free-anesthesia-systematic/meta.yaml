@@ -1,0 +1,59 @@
+id: 2023-feenstra-opioid-free-anesthesia-systematic
+title: 'Opioid-free anesthesia: A systematic review and meta-analysis'
+authors:
+- Feenstra ML
+- Jansen S
+- Eshuis WJ
+- van Berge Henegouwen MI
+- Hollmann MW
+- Hermanides J
+first_author: Feenstra ML
+journal: Journal of clinical anesthesia
+year: 2023
+volume: '90'
+issue: ''
+pages: '111215'
+doi: 10.1016/j.jclinane.2023.111215
+pmid: '37515877'
+type: Meta-analysis
+topics:
+- 阿片类药物
+tags: []
+evidence_level: na
+oa_status: unknown
+abstract: 'STUDY OBJECTIVE: To evaluate all available evidence thus far on opioid based versus opioid-free
+  anesthesia and its effect on acute and chronic postoperative pain.
+
+  DESIGN: Systematic review and meta-analysis of randomized clinical trials.
+
+  SETTING: Operating room, postoperative recovery room and ward.
+
+  PATIENTS: Patients undergoing general anesthesia.
+
+  INTERVENTIONS: After consulting MEDLINE, EMBASE and Cochrane database, studies which compared opioid
+  free anesthesia (OFA) with opioid based anesthesia (OBA) were included (last search April 15th 2022).
+
+  MEASUREMENTS: Primary outcomes were acute and chronic pain scores in NRS or VAS. Secondary outcomes
+  were quality of recovery and postoperative opioid consumption. Risk of bias was assessed using the RoB2
+  tool and a random effects model for the meta-analysis was conducted.
+
+  MAIN RESULTS: We identified 1245 citations, of which 38 studies met our inclusion criteria. There is
+  moderate quality evidence showing no clinically relevant difference of Numeric Rating Scale (NRS) scores
+  or opioid consumption in the postoperative period (pooled mean difference of 0.39 points with a CI of
+  0.19-0.59 and 4.02 MME with a CI of 1.73-6.30). We found only one small-sized study reporting no effect
+  of opioid-free anesthesia on chronic pain. The quality of recovery was superior in patients with opioid-free
+  anesthesia (mean difference of 8.26 points), however, this pooled analysis was comprised of only two
+  studies. Postoperative nausea and vomiting (PONV) occurred less in opioid-free anesthesia, but bradycardia
+  was more frequent.
+
+  CONCLUSIONS: We concluded that we cannot recommend one strategy over the other. Future studies could
+  focus on quality of recovery as outcome measure and adequately powered studies on the effects of opioid-free
+  anesthesia on chronic pain are eagerly awaited.'
+url: https://doi.org/10.1016/j.jclinane.2023.111215
+pdf: null
+language: en
+status: draft
+added_by: 示例数据
+added_date: '2026-09-09'
+updated_date: '2026-09-09'
+relevance: 4

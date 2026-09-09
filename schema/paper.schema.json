@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://example.org/anesthesia-lit-db/paper.schema.json",
+  "title": "麻醉科文献库 — 单篇文献元数据",
+  "description": "papers/<id>/meta.yaml 的字段定义。只允许存放公开出版物信息，严禁写入患者信息。",
+  "type": "object",
+  "required": ["id", "title", "authors", "year", "type", "topics", "status"],
+  "additionalProperties": false,
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[a-z0-9]+(-[a-z0-9]+)*$",
+      "description": "唯一标识，等于目录名。格式：年份-第一作者姓-关键词，全小写，用连字符。例：2024-smith-opioid-free"
+    },
+    "title": { "type": "string", "minLength": 5 },
+    "authors": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "建议格式：姓 名首字母，如 Smith J"
+    },
+    "first_author": { "type": "string" },
+    "journal": { "type": "string" },
+    "year": { "type": "integer", "minimum": 1800, "maximum": 2100 },
+    "volume": { "type": "string" },
+    "issue": { "type": "string" },
+    "pages": { "type": "string" },
+    "doi": { "type": "string" },
+    "pmid": { "type": "string" },
+    "type": {
+      "type": "string",
+      "enum": [
+        "RCT",
+        "Meta-analysis",
+        "Systematic review",
+        "Guideline",
+        "Review",
+        "Observational",
+        "Case report",
+        "Editorial",
+        "Basic science",
+        "Other"
+      ]
+    },
+    "topics": {
+      "type": "array",
+      "items": { "type": "string" },
+      "minItems": 1,
+      "description": "必须取自 schema/topics.yaml 中定义的叶子主题"
+    },
+    "tags": {
+      "type": "array",
+      "items": { "type": "string" },
+      "description": "自由关键词，用于补充检索"
+    },
+    "evidence_level": {
+      "type": "string",
+      "enum": ["high", "moderate", "low", "very-low", "na"],
+      "description": "GRADE 证据等级；非干预性研究可填 na"
+    },
+    "oa_status": {
+      "type": "string",
+      "enum": ["open", "closed", "unknown"]
+    },
+    "abstract": { "type": "string" },
+    "url": { "type": "string" },
+    "pdf": {
+      "type": ["string", "null"],
+      "description": "外部对象存储引用，如 r2://anesthesia-lit/2024-smith.pdf。不要提交 PDF 二进制到本仓库。"
+    },
+    "language": { "type": "string", "default": "en" },
+    "status": {
+      "type": "string",
+      "enum": ["draft", "reviewed", "archived"],
+      "description": "draft=刚录入待审；reviewed=已人工核对；archived=已归档"
+    },
+    "added_by": { "type": "string" },
+    "added_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "updated_date": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$" },
+    "relevance": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 5,
+      "description": "对本科室的实用价值，1-5 星"
+    }
+  }
+}

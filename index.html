@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麻醉科文献库 · 检索</title>
+<style>
+  :root{
+    --bg:#f6f7f9; --card:#fff; --ink:#1a1d21; --muted:#6b7280;
+    --line:#e5e7eb; --accent:#0f5c8c; --accent-soft:#e8f1f8;
+    --warn:#b45309; --ok:#047857;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    line-height:1.6;
+  }
+  header{
+    background:linear-gradient(135deg,#0f5c8c,#123a5c); color:#fff;
+    padding:22px 20px 18px;
+  }
+  .wrap{max-width:960px;margin:0 auto}
+  header h1{margin:0 0 4px;font-size:20px;font-weight:650;letter-spacing:.2px}
+  header .sub{font-size:13px;opacity:.82}
+  main{max-width:960px;margin:0 auto;padding:18px 20px 60px}
+  .panel{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px;box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .searchrow{display:flex;gap:8px}
+  input[type=search],select{
+    font:inherit;color:inherit;background:#fff;border:1px solid var(--line);
+    border-radius:9px;padding:10px 12px;outline:none;width:100%;
+  }
+  input[type=search]:focus,select:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+  .filters{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px;margin-top:10px}
+  .meta{display:flex;justify-content:space-between;align-items:center;margin:14px 2px 8px;font-size:13px;color:var(--muted)}
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:12px;
+    padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 2px rgba(16,24,40,.04);
+  }
+  .card h3{margin:0 0 6px;font-size:16px;line-height:1.45;font-weight:620}
+  .card h3 a{color:var(--ink);text-decoration:none}
+  .card h3 a:hover{color:var(--accent)}
+  .card .by{font-size:13px;color:var(--muted);margin-bottom:8px}
+  .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+  .badge{
+    font-size:12px;padding:2px 9px;border-radius:999px;
+    background:var(--accent-soft);color:var(--accent);white-space:nowrap;
+  }
+  .badge.t-RCT{background:#ecfdf5;color:#047857}
+  .badge.t-Guideline{background:#fef3c7;color:#92400e}
+  .badge.t-Meta-analysis,.badge.t-Systematic{background:#ede9fe;color:#5b21b6}
+  .badge.t-Review{background:#f1f5f9;color:#334155}
+  .badge.star{background:#fff7ed;color:var(--warn)}
+  .links{font-size:13px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .links a{color:var(--accent);text-decoration:none}
+  .links a:hover{text-decoration:underline}
+  button.more{
+    font:inherit;font-size:13px;background:none;border:none;color:var(--accent);
+    cursor:pointer;padding:0;
+  }
+  .detail{margin-top:10px;padding-top:10px;border-top:1px dashed var(--line);font-size:14px}
+  .detail h4{margin:12px 0 4px;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.3px}
+  .detail pre{
+    white-space:pre-wrap;word-wrap:break-word;font:inherit;
+    background:#fbfcfd;border:1px solid var(--line);border-radius:8px;padding:10px;margin:0;
+    max-height:420px;overflow:auto;
+  }
+  .empty{text-align:center;color:var(--muted);padding:40px 10px;font-size:14px}
+  .err{background:#fef2f2;border:1px solid #fecaca;color:#991b1b;border-radius:10px;padding:12px;font-size:14px}
+  footer{max-width:960px;margin:0 auto;padding:0 20px 40px;font-size:12px;color:var(--muted)}
+  mark{background:#fff2a8;padding:0 2px;border-radius:3px}
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>麻醉科文献库</h1>
+    <div class="sub" id="sub">正在加载…</div>
+  </div>
+</header>
+
+<main>
+  <div class="panel">
+    <div class="searchrow">
+      <input type="search" id="q" placeholder="搜索标题、作者、摘要、笔记、主题…（中英文均可）" autocomplete="off">
+    </div>
+    <div class="filters">
+      <select id="topic"><option value="">全部主题</option></select>
+      <select id="type"><option value="">全部类型</option></select>
+      <select id="year"><option value="">全部年份</option></select>
+    </div>
+  </div>
+
+  <div class="meta">
+    <span id="count"></span>
+    <span id="hint"></span>
+  </div>
+
+  <div id="results"></div>
+</main>
+
+<footer>
+  本页只展示已发表文献的公开题录与笔记，不含任何患者信息。数据来源：PubMed / Crossref。
+</footer>
+
+<script>
+const state = { all: [], papers: [] };
+
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function highlight(text, terms){
+  let out = esc(text);
+  terms.forEach(t => {
+    if(!t) return;
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    out = out.replace(re, '<mark>$1</mark>');
+  });
+  return out;
+}
+
+function terms(){
+  return (document.getElementById('q').value || '')
+    .split(/[\s,;，、]+/).map(s => s.trim()).filter(Boolean);
+}
+
+function score(p, ts){
+  if(!ts.length) return 1;
+  const hay = [
+    p.title, (p.authors||[]).join(' '), p.journal, (p.topics||[]).join(' '),
+    (p.tags||[]).join(' '), p.abstract, p.notes
+  ].join(' ').toLowerCase();
+  let s = 0;
+  ts.forEach(t => {
+    const tl = t.toLowerCase();
+    if((p.title||'').toLowerCase().includes(tl)) s += 12;
+    if((p.topics||[]).join(' ').toLowerCase().includes(tl)) s += 8;
+    if((p.tags||[]).join(' ').toLowerCase().includes(tl)) s += 6;
+    if((p.notes||'').toLowerCase().includes(tl)) s += 4;
+    if((p.abstract||'').toLowerCase().includes(tl)) s += 3;
+    if(hay.includes(tl)) s += 1;
+  });
+  return s;
+}
+
+function render(){
+  const ts = terms();
+  const topic = document.getElementById('topic').value;
+  const type  = document.getElementById('type').value;
+  const year  = document.getElementById('year').value;
+
+  let rows = state.papers.filter(p => {
+    if(topic && !(p.topics||[]).includes(topic)) return false;
+    if(type && p.type !== type) return false;
+    if(year && String(p.year) !== year) return false;
+    return true;
+  }).map(p => ({p, s: score(p, ts)}))
+    .filter(x => x.s > 0)
+    .sort((a,b) => (b.s - a.s) || ((b.p.year||0) - (a.p.year||0)))
+    .map(x => x.p);
+
+  document.getElementById('count').textContent =
+    rows.length + ' / ' + state.papers.length + ' 篇';
+  document.getElementById('hint').textContent =
+    ts.length ? '关键词：' + ts.join(' · ') : '显示全部';
+
+  const box = document.getElementById('results');
+  if(!rows.length){
+    box.innerHTML = '<div class="empty">没有匹配的文献。<br>试试更宽泛的关键词，或用命令行从 PubMed 补充：<br>' +
+      '<code>python scripts/fetch_metadata.py add &lt;DOI或PMID&gt;</code></div>';
+    return;
+  }
+
+  box.innerHTML = rows.map((p, i) => {
+    const authors = (p.authors||[]);
+    const authorStr = authors.length > 3 ? authors.slice(0,3).join(', ') + ' 等' : authors.join(', ');
+    const src = [p.journal, p.year].filter(Boolean).join(' · ');
+    const badges = [];
+    if(p.type) badges.push(`<span class="badge t-${esc(String(p.type).split(' ')[0])}">${esc(p.type)}</span>`);
+    if(p.evidence_level && p.evidence_level !== 'na')
+      badges.push(`<span class="badge">证据 ${esc(p.evidence_level)}</span>`);
+    if(p.relevance) badges.push(`<span class="badge star">${'★'.repeat(p.relevance)}</span>`);
+    (p.topics||[]).forEach(t => badges.push(`<span class="badge">${esc(t)}</span>`));
+    if(p.status === 'draft') badges.push('<span class="badge">待核对</span>');
+
+    const linkBits = [];
+    if(p.doi) linkBits.push(`<a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">DOI ↗</a>`);
+    if(p.pmid) linkBits.push(`<a href="https://pubmed.ncbi.nlm.nih.gov/${esc(p.pmid)}/" target="_blank" rel="noopener">PubMed ↗</a>`);
+    if(p.url && !p.doi) linkBits.push(`<a href="${esc(p.url)}" target="_blank" rel="noopener">原文 ↗</a>`);
+
+    return `<div class="card">
+      <h3><a href="#" data-i="${i}">${highlight(p.title, ts)}</a></h3>
+      <div class="by">${esc(authorStr)}${authorStr ? ' · ' : ''}${esc(src)}</div>
+      <div class="badges">${badges.join('')}</div>
+      <div class="links">${linkBits.join('')}
+        <button class="more" data-i="${i}">展开摘要 / 笔记</button>
+      </div>
+      <div class="detail" id="d${i}" hidden></div>
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('[data-i]').forEach(el => {
+    el.addEventListener('click', ev => {
+      ev.preventDefault();
+      const i = el.dataset.i;
+      const p = rows[i];
+      const d = document.getElementById('d' + i);
+      if(!d.hidden){ d.hidden = true; el.textContent = '展开摘要 / 笔记'; return; }
+      d.innerHTML =
+        (p.abstract ? `<h4>摘要</h4><pre>${esc(p.abstract)}</pre>` : '') +
+        (p.notes ? `<h4>笔记</h4><pre>${esc(p.notes)}</pre>` : '') +
+        `<h4>目录</h4><pre>${esc(p.path || '')}</pre>`;
+      d.hidden = false;
+      if(el.tagName === 'BUTTON') el.textContent = '收起';
+    });
+  });
+}
+
+function fillFilters(){
+  const topics = new Set(), types = new Set(), years = new Set();
+  state.papers.forEach(p => {
+    (p.topics||[]).forEach(t => topics.add(t));
+    if(p.type) types.add(p.type);
+    if(p.year) years.add(p.year);
+  });
+  const tSel = document.getElementById('topic');
+  [...topics].sort().forEach(t => tSel.add(new Option(t, t)));
+  const ySel = document.getElementById('type');
+  [...types].sort().forEach(t => ySel.add(new Option(t, t)));
+  const rSel = document.getElementById('year');
+  [...years].sort((a,b)=>b-a).forEach(y => rSel.add(new Option(y, y)));
+}
+
+async function boot(){
+  try{
+    const res = await fetch('./index.json', {cache:'no-store'});
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const data = await res.json();
+    state.papers = data.papers || [];
+    document.getElementById('sub').textContent =
+      '共 ' + state.papers.length + ' 篇 · 更新于 ' + (data.generated_at || '未知');
+    fillFilters();
+    render();
+  }catch(err){
+    document.getElementById('sub').textContent = '加载失败';
+    document.getElementById('results').innerHTML =
+      '<div class="err">无法读取 index.json（' + esc(err.message) + '）。<br><br>' +
+      '常见原因：直接用浏览器打开了本地文件，浏览器禁止读取本地数据。<br>' +
+      '解决：在仓库根目录运行 <code>python scripts/serve.py</code>，或部署到 GitHub Pages 后访问。</div>';
+  }
+}
+
+document.getElementById('q').addEventListener('input', () => {
+  clearTimeout(window._t);
+  window._t = setTimeout(render, 120);
+});
+['topic','type','year'].forEach(id =>
+  document.getElementById(id).addEventListener('change', render));
+
+boot();
+</script>
+</body>
+</html>

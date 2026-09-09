@@ -1,0 +1,41 @@
+# 忽略生成物与本地文件
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 索引数据库（index.json 保留，供网页直接使用）
+index.sqlite
+index.sqlite-wal
+index.sqlite-shm
+
+# 备份与临时文件
+*.bak
+*.tmp
+*~
+
+# 操作系统
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== 以下内容永远不要提交 =====
+
+# PDF 全文与附件（版权 + 体积）
+*.pdf
+pdfs/
+attachments/
+fulltext/
+
+# 本地配置与密钥
+.env
+.env.*
+*.local
+secrets/
+
+# 数据导出（可能含敏感内容）
+exports/
+*.xlsx
+*.csv
