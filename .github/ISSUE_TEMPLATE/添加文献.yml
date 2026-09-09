@@ -1,0 +1,55 @@
+name: 添加文献
+description: 填一个 DOI 或 PMID，机器人自动抓题录入库
+title: "[添加文献] "
+labels: ["添加文献"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        填下面**一个号码**就行，不用写别的。
+
+        提交后机器人会自动去 PubMed 抓题录、建目录、写笔记模板并提交，约 30 秒后网页更新。
+        抓不到的话机器人会在下面回复说明原因。
+
+  - type: input
+    id: doi
+    attributes:
+      label: DOI 或 PMID
+      description: 二选一。DOI 形如 10.1001/jama.2021.22647；PMID 是纯数字，如 34928310
+      placeholder: 10.1001/jama.2021.22647
+    validations:
+      required: true
+
+  - type: dropdown
+    id: topic
+    attributes:
+      label: 主要主题（可不选）
+      description: 选一个最贴切的；不确定就留空，以后能改
+      options:
+        - （不指定）
+        - 术后镇痛
+        - 术后恶心呕吐
+        - 术后谵妄与认知功能障碍
+        - 加速康复外科（ERAS）
+        - 术后转归与并发症
+        - 困难气道
+        - 气管插管
+        - 椎管内麻醉
+        - 外周神经阻滞
+        - 阿片类药物
+        - 右美托咪定
+        - 老年麻醉
+        - 产科麻醉
+        - 小儿麻醉
+        - 指南与专家共识
+    validations:
+      required: false
+
+  - type: textarea
+    id: note
+    attributes:
+      label: 备注（可不填）
+      description: 一句话说明为什么加这篇。**备注只显示在处理结果里，不会写进文献库**，所以请不要在这里写任何患者信息。
+      placeholder: 例如：主任提到术后镇痛方案要更新，这篇是 2024 年的大样本 RCT
+    validations:
+      required: false

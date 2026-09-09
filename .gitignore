@@ -6,10 +6,13 @@ __pycache__/
 .venv/
 venv/
 
-# 索引数据库（index.json 保留，供网页直接使用）
+# 索引数据库（index.json 保留，供脚本直接使用）
 index.sqlite
 index.sqlite-wal
 index.sqlite-shm
+
+# 机器人处理 Issue 时产生的临时结果文件
+.issue-result.md
 
 # 备份与临时文件
 *.bak

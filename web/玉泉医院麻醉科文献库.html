@@ -59,6 +59,18 @@
     background:#f0f3f6;padding:1px 5px;border-radius:4px;
     font-family:ui-monospace,Consolas,monospace;font-size:14px;
   }
+  .addbox{display:flex;gap:8px;flex-wrap:wrap;margin:12px 0 4px}
+  .addbox input{
+    flex:1 1 240px;font:inherit;font-size:16px;padding:11px 13px;
+    border:2px solid var(--line);border-radius:9px;min-height:46px;outline:none;
+  }
+  .addbox input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .addbox button{
+    font:inherit;font-size:16px;min-height:46px;padding:11px 22px;border-radius:9px;
+    border:1px solid var(--accent);background:var(--accent);color:#fff;font-weight:600;cursor:pointer;
+  }
+  .addbox button:hover{background:#0a4c76}
+  .hint{font-size:14px;color:var(--muted);margin:8px 0 0}
 
   /* ---- 搜索区 ---- */
   .searchbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
@@ -190,6 +202,18 @@
         <li><b>find_related</b>：找主题相近的文献</li>
       </ul>
       <p>详细说明见仓库里的 <code>docs/AI接入指南.md</code>。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>➕ 添加文献（填一个 DOI 就行）</summary>
+    <div class="body">
+      <p>在下面填 <b>DOI 或 PMID</b>，点按钮会跳到 GitHub 的表单；确认提交后，机器人会自动去 PubMed 抓题录、建目录、写笔记模板，约 1 分钟后网页自动更新。</p>
+      <div class="addbox">
+        <input type="search" id="newdoi" placeholder="例如 10.1001/jama.2021.22647 或 34928310" autocomplete="off">
+        <button id="newsubmit">提交到文献库</button>
+      </div>
+      <p class="hint">需要登录 GitHub 账号，<b>建议在电脑上操作</b>——手机微信里登录 GitHub 容易卡住。</p>
     </div>
   </details>
 
@@ -412,6 +436,20 @@ document.getElementById('q').addEventListener('input', () => {
   window._t = setTimeout(render, 120);
 });
 document.getElementById('type').addEventListener('change', render);
+
+// 「添加文献」：跳到 GitHub 表单，并把 DOI 预填进去
+const REPO_ISSUE_NEW = 'https://github.com/zhaokaixuan97-arch/anesthesia-lit-db/issues/new';
+function submitNewPaper(){
+  const input = document.getElementById('newdoi');
+  const v = (input.value || '').trim();
+  const params = new URLSearchParams({template: '添加文献.yml'});
+  if(v) params.set('doi', v);
+  window.open(REPO_ISSUE_NEW + '?' + params.toString(), '_blank', 'noopener');
+}
+document.getElementById('newsubmit').addEventListener('click', submitNewPaper);
+document.getElementById('newdoi').addEventListener('keydown', e => {
+  if(e.key === 'Enter') submitNewPaper();
+});
 
 boot();
 </script>
