@@ -48,6 +48,7 @@ anesthesia-lit-db/
 │       └── notes.md        # 笔记（含自动抓取的摘要 + 人工补充）
 ├── scripts/
 │   ├── fetch_metadata.py   # 从 PubMed/Crossref 抓题录入库
+│   ├── add_from_issue.py   # 处理「添加文献」Issue（机器人用）
 │   ├── validate.py         # 结构校验 + 隐私体检
 │   ├── build_index.py      # 生成 index.json / index.sqlite
 │   ├── build_web.py        # 打包成自包含单文件网页
@@ -56,7 +57,9 @@ anesthesia-lit-db/
 │   └── serve.py            # 本地启动检索网页（开发预览用）
 ├── mcp/
 │   └── server.py           # MCP 服务端，供 AI 客户端接入
-└── .github/workflows/      # 提交自动校验并重建索引与网页
+└── .github/
+    ├── ISSUE_TEMPLATE/     # 「添加文献」表单
+    └── workflows/          # 提交自动校验、重建索引与网页、处理添加文献
 ```
 
 > `index.html` 和 `dist/*.html` 都是**生成物**，不要手改——改 `web/template.html` 然后跑 `python scripts/build_web.py`。
@@ -140,7 +143,25 @@ python scripts/search.py "opioid" --type RCT --year-from 2020
 python scripts/search.py "regional" --full
 ```
 
----
+### 7. 让别人帮你加文献（不用装任何东西）
+
+仓库里内置了一个「添加文献」表单，**任何人都能用，手机上也能操作**：
+
+1. 打开仓库 → **Issues → New issue → 添加文献**
+   （或直接点网页上的「➕ 添加文献」区块，DOI 会自动填好）
+2. 填一个 **DOI 或 PMID**，选一个主题，点 **Submit new issue**
+3. 机器人自动跑：PubMed 抓题录 → 建 `papers/` 目录 → 重建网页 → 提交 → 回复并关闭 Issue
+4. 约 1 分钟后网页自动更新
+
+> 也可以直接访问这个链接：<https://github.com/zhaokaixuan97-arch/anesthesia-lit-db/issues/new?template=%E6%B7%BB%E5%8A%A0%E6%96%87%E7%8C%AE.yml>
+
+**安全边界**（仓库是公开的，任何人都能提交，所以机器人只信任这些）：
+
+- 只解析 **DOI/PMID 字段**，且必须匹配严格正则
+- 主题必须来自 `schema/topics.yaml` 白名单
+- **备注不写入仓库**，只回显在 Issue 评论里（避免有人把患者信息塞进来）
+- 写入后立刻跑 `validate.py`，命中隐私红线就整个回滚
+- 重复文献会被识别并跳过
 
 ## 接入 AI（MCP）
 
