@@ -13,7 +13,6 @@
 
 from __future__ import annotations
 
-import datetime as _dt
 import json
 import sqlite3
 import sys
@@ -102,8 +101,9 @@ def build_sqlite(records: list[dict]) -> None:
 
 
 def build_json(records: list[dict]) -> None:
+    # 刻意不写入生成时间戳：保持输出确定性，这样 GitHub Actions 重建后
+    # 只有在内容真的变化时才会产生提交，避免每次推送都多一个机器人提交。
     payload = {
-        "generated_at": _dt.datetime.now().isoformat(timespec="seconds"),
         "count": len(records),
         "papers": records,
     }

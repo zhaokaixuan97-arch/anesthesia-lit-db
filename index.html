@@ -243,7 +243,7 @@ async function boot(){
     const data = await res.json();
     state.papers = data.papers || [];
     document.getElementById('sub').textContent =
-      '共 ' + state.papers.length + ' 篇 · 更新于 ' + (data.generated_at || '未知');
+      '共 ' + state.papers.length + ' 篇文献 · 提交后由 GitHub Actions 自动重建索引';
     fillFilters();
     render();
   }catch(err){
