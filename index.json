@@ -1,6 +1,48 @@
 {
- "count": 7,
+ "count": 8,
  "papers": [
+  {
+   "id": "2026-ahmad-difficult-airway-society",
+   "title": "Difficult Airway Society 2025 guidelines for management of unanticipated difficult tracheal intubation in adults",
+   "authors": [
+    "Ahmad I",
+    "El-Boghdadly K",
+    "Iliff H",
+    "Dua G",
+    "Higgs A",
+    "Huntington M",
+    "Mir F",
+    "Nouraei SAR",
+    "O'Sullivan EP",
+    "Patel A",
+    "Rivett K",
+    "McNarry AF"
+   ],
+   "first_author": "Ahmad I",
+   "journal": "British journal of anaesthesia",
+   "year": 2026,
+   "volume": "136",
+   "issue": "1",
+   "pages": "283-307",
+   "doi": "10.1016/j.bja.2025.10.006",
+   "pmid": "41203471",
+   "type": "Guideline",
+   "topics": [
+    "困难气道"
+   ],
+   "tags": [],
+   "evidence_level": "na",
+   "oa_status": "unknown",
+   "url": "https://doi.org/10.1016/j.bja.2025.10.006",
+   "status": "draft",
+   "added_by": "@zhaokaixuan97-arch",
+   "added_date": "2026-09-09",
+   "updated_date": "2026-09-09",
+   "relevance": 3,
+   "abstract": "Advances in our understanding and practice of airway management necessitate contemporary guidelines for tracheal intubation. The Difficult Airway Society (DAS) therefore produced recommendations to improve the efficacy and safety of tracheal intubation. We conducted a systematic review and a three-round Delphi process to formulate multidisciplinary, evidence-based, expert consensus recommendations. We invited 20 external experts to guide recommendations on emergency front-of-neck airway and engaged DAS members and 16 international airway experts to provide feedback. Twelve members of the guidelines group participated in 65 meetings over 3 years, and 1241 papers were included after a systematic review. Sixty-five recommendations were made in relation to tracheal intubation. These included airway assessment and planning; peroxygenation; postintubation care; rapid sequence induction and intubation; the physiologically difficult airway; obesity; human factors; point-of-care ultrasound; documentation; and education and training. We maintain the concept of a linear algorithm encompassing tracheal intubation (Plan A); supraglottic airway device ventilation (Plan B); facemask ventilation (Plan C); and emergency front-of-neck airway (Plan D). The recommendations prioritise continuous oxygen delivery throughout airway management; maximising the likelihood of successful tracheal intubation at the first attempt; confirmation of ventilation with waveform capnography; progressing through the algorithm in the event of failure; multidisciplinary teamwork; and ongoing education and training. These guidelines are designed to support clinicians in delivering airway management that prioritises efficacy and safety. Overall, we emphasise the importance of maximising the chances of success, rather than the avoidance and management of failure, to improve outcomes for patients undergoing airway management.",
+   "notes": "# Difficult Airway Society 2025 guidelines for management of unanticipated difficult tracheal intubation in adults\n\n> British journal of anaesthesia · 2026 · Guideline\n> 自动生成于 2026-09-09。**请人工补充下面各节**，未填写的保留「待补充」。\n> 提醒：本文件是公开出版物笔记，**严禁写入任何患者信息**（姓名、住院号、影像、病例细节）。\n\n## 摘要\n\nAdvances in our understanding and practice of airway management necessitate contemporary guidelines for tracheal intubation. The Difficult Airway Society (DAS) therefore produced recommendations to improve the efficacy and safety of tracheal intubation. We conducted a systematic review and a three-round Delphi process to formulate multidisciplinary, evidence-based, expert consensus recommendations. We invited 20 external experts to guide recommendations on emergency front-of-neck airway and engaged DAS members and 16 international airway experts to provide feedback. Twelve members of the guidelines group participated in 65 meetings over 3 years, and 1241 papers were included after a systematic review. Sixty-five recommendations were made in relation to tracheal intubation. These included airway assessment and planning; peroxygenation; postintubation care; rapid sequence induction and intubation; the physiologically difficult airway; obesity; human factors; point-of-care ultrasound; documentation; and education and training. We maintain the concept of a linear algorithm encompassing tracheal intubation (Plan A); supraglottic airway device ventilation (Plan B); facemask ventilation (Plan C); and emergency front-of-neck airway (Plan D). The recommendations prioritise continuous oxygen delivery throughout airway management; maximising the likelihood of successful tracheal intubation at the first attempt; confirmation of ventilation with waveform capnography; progressing through the algorithm in the event of failure; multidisciplinary teamwork; and ongoing education and training. These guidelines are designed to support clinicians in delivering airway management that prioritises efficacy and safety. Overall, we emphasise the importance of maximising the chances of success, rather than the avoidance and management of failure, to improve outcomes for patients undergoing airway management.\n\n## 一句话结论\n\n待补充\n\n## PICO\n\n- **P**（人群）：\n- **I**（干预）：\n- **C**（对照）：\n- **O**（结局）：\n\n## 主要结果\n\n待补充（关键数字、效应量、置信区间）\n\n## 局限性\n\n待补充\n\n## 对本科室的实践意义\n\n待补充（是否改变现有流程？适用哪类患者？成本/可行性如何？）\n\n## 引用格式\n\n待补充\n\n## 变更记录\n\n- 2026-09-09 由 @zhaokaixuan97-arch 创建\n",
+   "path": "papers/2026-ahmad-difficult-airway-society"
+  },
   {
    "id": "2026-gan-fifth-consensus-guidelines",
    "title": "Fifth Consensus Guidelines for the Management of Postoperative Nausea and Vomiting: Executive Summary",
