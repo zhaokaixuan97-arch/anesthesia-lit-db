@@ -82,6 +82,7 @@ def compute_stats(records: list[dict]) -> dict:
         per_paper = max(avg * 6, 1024)
         basis = "estimate"
         used_bytes = papers_bytes + index_bytes
+        repo_bytes = 0  # 清掉，保证产物完全确定（否则每次 push 都会变）
 
     remaining = max(LIMIT_BYTES - used_bytes, 0)
     return {
