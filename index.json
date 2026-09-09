@@ -3,9 +3,9 @@
  "stats": {
   "papers": 8,
   "papers_files": 16,
-  "papers_bytes": 48382,
-  "index_bytes": 51119,
-  "avg_bytes": 6047,
+  "papers_bytes": 47650,
+  "index_bytes": 50716,
+  "avg_bytes": 5956,
   "repo_bytes": 179200,
   "per_paper_bytes": 22400,
   "limit_bytes": 1073741824,
