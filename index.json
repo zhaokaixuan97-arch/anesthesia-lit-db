@@ -3,16 +3,16 @@
  "stats": {
   "papers": 99,
   "papers_files": 198,
-  "papers_bytes": 595013,
-  "index_bytes": 634103,
-  "avg_bytes": 6010,
+  "papers_bytes": 594281,
+  "index_bytes": 633661,
+  "avg_bytes": 6002,
   "repo_bytes": 179200,
-  "per_paper_bytes": 36060,
+  "per_paper_bytes": 36012,
   "limit_bytes": 1073741824,
-  "used_bytes": 1229116,
+  "used_bytes": 1227942,
   "used_pct": 0.114,
-  "remaining_bytes": 1072512708,
-  "remaining_papers": 29742,
+  "remaining_bytes": 1072513882,
+  "remaining_papers": 29782,
   "basis": "estimate"
  },
  "papers": [
