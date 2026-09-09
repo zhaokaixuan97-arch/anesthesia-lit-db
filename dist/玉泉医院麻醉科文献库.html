@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>麻醉科文献库</title>
+<!-- 内联图标，避免浏览器去请求 favicon.ico（保证零外部请求） -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b5a8a'/%3E%3Cpath d='M27 12h10v15h15v10H37v15H27V37H12V27h15z' fill='white'/%3E%3C/svg%3E">
 <style>
   :root{
     --bg:#f4f6f8; --card:#fff; --ink:#16191d; --muted:#5b6472;
@@ -384,7 +386,8 @@ async function boot(){
   try{
     let data = window.__LIT_DB_DATA__;
     if(!data){
-      const res = await fetch('./index.json', {cache:'no-store'});
+      // 模板单独打开时的开发用回退；打包后的文件会内联数据，不会走这里
+      const res = await fetch('../index.json', {cache:'no-store'});
       if(!res.ok) throw new Error('HTTP ' + res.status);
       data = await res.json();
     }

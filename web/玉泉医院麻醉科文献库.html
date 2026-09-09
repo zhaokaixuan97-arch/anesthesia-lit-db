@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>麻醉科文献库</title>
+<!-- 内联图标，避免浏览器去请求 favicon.ico（保证零外部请求） -->
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b5a8a'/%3E%3Cpath d='M27 12h10v15h15v10H37v15H27V37H12V27h15z' fill='white'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#f4f6f8; --card:#fff; --ink:#16191d; --muted:#5b6472;
+    --line:#dfe3e8; --accent:#0b5a8a; --accent-soft:#e6f0f7;
+    --warn:#a05a00; --ok:#0a6b4a;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+    font-size:17px; line-height:1.7;
+  }
+  header{background:linear-gradient(135deg,#0b5a8a,#0d3350); color:#fff; padding:20px 18px 18px}
+  .wrap{max-width:980px;margin:0 auto}
+  header h1{margin:0 0 6px;font-size:22px;font-weight:700;letter-spacing:.3px}
+  header .sub{font-size:15px;opacity:.9;line-height:1.6}
+  main{max-width:980px;margin:0 auto;padding:16px 18px 70px;display:flex;flex-direction:column}
+
+  /* 手机上先看到搜索框，说明放到结果后面 */
+  .searchbox{order:1}
+  .countbar{order:2}
+  #results{order:3}
+  .guide{order:4}
+  details{order:5}
+
+  /* ---- 说明区 ---- */
+  .guide{
+    background:#fff;border:1px solid var(--line);border-left:5px solid var(--accent);
+    border-radius:10px;padding:14px 16px;margin-bottom:16px;
+  }
+  .guide h2{margin:0 0 8px;font-size:17px;color:var(--accent)}
+  .guide ol{margin:0;padding-left:22px}
+  .guide li{margin:4px 0}
+  details{background:#fff;border:1px solid var(--line);border-radius:10px;padding:0;margin-bottom:16px}
+  details summary{
+    cursor:pointer;padding:13px 16px;font-size:17px;font-weight:650;color:var(--accent);
+    list-style:none;
+  }
+  details summary::-webkit-details-marker{display:none}
+  details summary::before{content:"▸ ";font-size:15px}
+  details[open] summary::before{content:"▾ "}
+  details .body{padding:0 16px 16px;font-size:16px;color:#333}
+  details .body h3{font-size:16px;margin:14px 0 6px;color:var(--ink)}
+  details .body pre{
+    background:#f7f9fb;border:1px solid var(--line);border-radius:8px;
+    padding:10px 12px;overflow:auto;font-size:14px;line-height:1.6;
+    font-family:ui-monospace,Consolas,"Courier New",monospace;
+  }
+  details .body code{
+    background:#f0f3f6;padding:1px 5px;border-radius:4px;
+    font-family:ui-monospace,Consolas,monospace;font-size:14px;
+  }
+
+  /* ---- 搜索区 ---- */
+  .searchbox{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:14px}
+  label.big{display:block;font-size:16px;font-weight:650;margin-bottom:8px}
+  input[type=search]{
+    width:100%;font:inherit;font-size:17px;color:inherit;background:#fff;
+    border:2px solid var(--line);border-radius:10px;padding:13px 14px;outline:none;
+  }
+  input[type=search]:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--accent-soft)}
+  .quicklabel{font-size:15px;color:var(--muted);margin:14px 0 8px}
+  .quick{display:flex;flex-wrap:wrap;gap:8px}
+  .quick button{
+    font:inherit;font-size:16px;background:var(--accent-soft);color:var(--accent);
+    border:1px solid #cfe0ec;border-radius:999px;padding:9px 16px;cursor:pointer;
+    min-height:44px;
+  }
+  .quick button:hover{background:#d8e8f3}
+  .quick button.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+
+  .countbar{display:flex;justify-content:space-between;align-items:center;margin:16px 2px 10px;font-size:15px;color:var(--muted)}
+  .countbar select{
+    font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);
+    border-radius:8px;background:#fff;min-height:42px;
+  }
+
+  /* ---- 结果卡片 ---- */
+  .card{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin-bottom:12px}
+  .card h3{margin:0 0 8px;font-size:18px;line-height:1.5;font-weight:650}
+  .card .by{font-size:15px;color:var(--muted);margin-bottom:10px}
+  .badges{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+  .badge{font-size:14px;padding:3px 11px;border-radius:999px;background:var(--accent-soft);color:var(--accent);white-space:nowrap}
+  .badge.t-RCT{background:#e7f8f0;color:#0a6b4a}
+  .badge.t-Guideline{background:#fdf1d8;color:#8a5200}
+  .badge.t-Meta-analysis,.badge.t-Systematic{background:#efe9fd;color:#5a2ea6}
+  .badge.t-Review{background:#eef1f5;color:#39434f}
+  .badge.star{background:#fdf0e3;color:var(--warn)}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .actions button,.actions a{
+    font:inherit;font-size:16px;min-height:46px;display:inline-flex;align-items:center;
+    justify-content:center;padding:10px 18px;border-radius:9px;text-decoration:none;cursor:pointer;
+    border:1px solid var(--line);background:#fff;color:var(--accent);
+  }
+  .actions button.primary{background:var(--accent);color:#fff;border-color:var(--accent);font-weight:600}
+  .actions button.primary:hover{background:#0a4c76}
+  .actions a:hover,.actions button:hover{border-color:#b9c6d2}
+  .detail{margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+  .detail h4{margin:14px 0 6px;font-size:15px;color:var(--muted);font-weight:650}
+  .detail h4:first-child{margin-top:0}
+  .detail pre{
+    white-space:pre-wrap;word-wrap:break-word;font:inherit;font-size:16px;
+    background:#fafbfc;border:1px solid var(--line);border-radius:8px;padding:12px;
+    margin:0;max-height:none;
+  }
+  .empty{text-align:center;color:var(--muted);padding:36px 12px;font-size:16px}
+  .err{background:#fef2f2;border:1px solid #f5c2c2;color:#8a1c1c;border-radius:10px;padding:14px;font-size:16px}
+  .toast{
+    position:fixed;left:50%;bottom:28px;transform:translateX(-50%) translateY(20px);
+    background:#16191d;color:#fff;padding:11px 20px;border-radius:999px;font-size:15px;
+    opacity:0;pointer-events:none;transition:.2s;z-index:99;
+  }
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  footer{max-width:980px;margin:0 auto;padding:0 18px 44px;font-size:14px;color:var(--muted);line-height:1.8}
+  mark{background:#ffe9a8;padding:0 2px;border-radius:3px}
+
+  @media (max-width:520px){
+    body{font-size:17px}
+    header h1{font-size:20px}
+    main{padding:14px 14px 60px}
+    .card{padding:14px}
+    .card h3{font-size:17px}
+    .actions button,.actions a{flex:1 1 auto;padding:10px 12px}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <h1>麻醉科文献库</h1>
+    <div class="sub" id="sub">正在加载…</div>
+  </div>
+</header>
+
+<main>
+  <!-- 傻瓜式说明 -->
+  <div class="guide">
+    <h2>怎么用（三步）</h2>
+    <ol>
+      <li>在下面框里输入你想查的词，比如 <b>术后谵妄</b>、<b>术后镇痛</b>、<b>ERAS</b></li>
+      <li>不想打字？直接点下面的<b>常见主题</b>按钮</li>
+      <li>点 <b>看摘要和笔记</b> 就能看内容；想看原文点 <b>PubMed原文</b></li>
+    </ol>
+  </div>
+
+  <details>
+    <summary>这个库是什么？（点开看）</summary>
+    <div class="body">
+      <p>这是咱们麻醉科自己整理的文献库，把找到的麻醉相关文献集中放在一起，方便随时查。</p>
+      <p>每篇文献包含两部分：</p>
+      <ul>
+        <li><b>题录</b>：标题、作者、期刊、年份、DOI，都从 PubMed 自动抓取，不会有错。</li>
+        <li><b>笔记</b>：科里同事写的 PICO、主要结果、局限性、对我们科的参考价值。</li>
+      </ul>
+      <p><b>重要提醒：</b>本库只收录<b>已发表文献的公开信息</b>，<b>不含任何患者信息</b>。笔记仅供循证参考，不能替代临床判断，关键结论请核对原文。</p>
+    </div>
+  </details>
+
+  <details>
+    <summary>给会用 AI 的同事：怎么把文献库接到 AI 里</summary>
+    <div class="body">
+      <p>本库自带一个 MCP 服务端（<code>mcp/server.py</code>），装好后可以直接问 AI：<b>"我们库里关于术后谵妄的证据有哪些？"</b>，AI 会去查库并带 DOI 回答。</p>
+      <h3>配置方法（以 Claude Desktop 为例）</h3>
+      <p>1. 找到配置文件 <code>claude_desktop_config.json</code>（Windows 在 <code>%APPDATA%\Claude\</code>）。</p>
+      <p>2. 加入下面这段（把路径换成文献库实际所在目录）：</p>
+      <pre>{
+  "mcpServers": {
+    "anesthesia-lit-db": {
+      "command": "python",
+      "args": ["文献库目录\\mcp\\server.py"]
+    }
+  }
+}</pre>
+      <p>3. 重启 AI 客户端即可。</p>
+      <h3>能用哪几个功能</h3>
+      <ul>
+        <li><b>search_literature</b>：按关键词、主题、类型、年份检索</li>
+        <li><b>get_paper</b>：取某篇的完整题录与笔记</li>
+        <li><b>list_topics</b>：看主题覆盖情况，发现空白方向</li>
+        <li><b>library_stats</b>：全库统计</li>
+        <li><b>find_related</b>：找主题相近的文献</li>
+      </ul>
+      <p>详细说明见仓库里的 <code>docs/AI接入指南.md</code>。</p>
+    </div>
+  </details>
+
+  <!-- 搜索 -->
+  <div class="searchbox">
+    <label class="big" for="q">查什么？</label>
+    <input type="search" id="q" placeholder="例如：术后谵妄、术后镇痛、气道管理" autocomplete="off">
+    <div class="quicklabel">常见主题（点一下就查）：</div>
+    <div class="quick" id="quick"></div>
+  </div>
+
+  <div class="countbar">
+    <span id="count"></span>
+    <select id="type" aria-label="按类型筛选">
+      <option value="">全部类型</option>
+    </select>
+  </div>
+
+  <div id="results"></div>
+</main>
+
+<footer>
+  本页只展示已发表文献的公开题录与科室笔记，<b>不含任何患者信息</b>。数据来源：PubMed / Crossref。<br>
+  笔记内容仅供循证参考，不能替代临床判断；关键结论请核对原文。
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const state = { papers: [] };
+
+function esc(s){
+  return String(s == null ? '' : s)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+function toast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(window._toast); window._toast = setTimeout(() => t.classList.remove('show'), 1600);
+}
+function copyText(text){
+  const done = () => toast('已复制，可直接粘贴');
+  if(navigator.clipboard && location.protocol.startsWith('http')){
+    navigator.clipboard.writeText(text).then(done).catch(() => fallback());
+  } else { fallback(); }
+  function fallback(){
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); done(); } catch(e){ toast('复制失败，请手动选择'); }
+    document.body.removeChild(ta);
+  }
+}
+function highlight(text, terms){
+  let out = esc(text);
+  terms.forEach(t => {
+    if(!t) return;
+    const re = new RegExp('(' + t.replace(/[.*+?^${}()|[\]\\]/g,'\\$&') + ')', 'gi');
+    out = out.replace(re, '<mark>$1</mark>');
+  });
+  return out;
+}
+function vancouver(p){
+  const a = (p.authors || []).slice(0, 3).join(', ');
+  const more = (p.authors || []).length > 3 ? ', et al' : '';
+  const src = [p.journal, p.year].filter(Boolean).join('. ');
+  const vol = p.volume ? ';' + p.volume : '';
+  const iss = p.issue ? '(' + p.issue + ')' : '';
+  const pg = p.pages ? ':' + p.pages : '';
+  const doi = p.doi ? '. doi:' + p.doi : '';
+  return `${a}${more}. ${p.title}. ${src}${vol}${iss}${pg}${doi}`;
+}
+function terms(){
+  return (document.getElementById('q').value || '')
+    .split(/[\s,;，、]+/).map(s => s.trim()).filter(Boolean);
+}
+function score(p, ts, topic){
+  let s = 0;
+  if(topic){
+    if((p.topics||[]).includes(topic)) s += 50; else return 0;
+  }
+  if(!ts.length) return s + 1;
+  const hay = [
+    p.title, (p.authors||[]).join(' '), p.journal, (p.topics||[]).join(' '),
+    (p.tags||[]).join(' '), p.abstract, p.notes
+  ].join(' ').toLowerCase();
+  ts.forEach(t => {
+    const tl = t.toLowerCase();
+    if((p.title||'').toLowerCase().includes(tl)) s += 12;
+    if((p.topics||[]).join(' ').toLowerCase().includes(tl)) s += 8;
+    if((p.tags||[]).join(' ').toLowerCase().includes(tl)) s += 6;
+    if((p.notes||'').toLowerCase().includes(tl)) s += 4;
+    if((p.abstract||'').toLowerCase().includes(tl)) s += 3;
+    if(hay.includes(tl)) s += 1;
+  });
+  return s;
+}
+
+let activeTopic = '';
+
+function render(){
+  const ts = terms();
+  const type = document.getElementById('type').value;
+
+  let rows = state.papers
+    .filter(p => !type || p.type === type)
+    .map(p => ({p, s: score(p, ts, activeTopic)}))
+    .filter(x => x.s > 0)
+    .sort((a,b) => (b.s - a.s) || ((b.p.year||0) - (a.p.year||0)))
+    .map(x => x.p);
+
+  document.getElementById('count').textContent =
+    '找到 ' + rows.length + ' 篇（库里共 ' + state.papers.length + ' 篇）';
+
+  const box = document.getElementById('results');
+  if(!rows.length){
+    box.innerHTML = '<div class="empty">没有找到相关的文献。<br>换个词试试，或者点上面的常见主题按钮。</div>';
+    return;
+  }
+
+  box.innerHTML = rows.map((p, i) => {
+    const authors = p.authors || [];
+    const authorStr = authors.length > 3 ? authors.slice(0,3).join(', ') + ' 等' : authors.join(', ');
+    const src = [p.journal, p.year].filter(Boolean).join(' · ');
+    const badges = [];
+    if(p.type) badges.push(`<span class="badge t-${esc(String(p.type).split(' ')[0])}">${esc(p.type)}</span>`);
+    if(p.relevance) badges.push(`<span class="badge star">${'★'.repeat(p.relevance)}</span>`);
+    (p.topics||[]).forEach(t => badges.push(`<span class="badge">${esc(t)}</span>`));
+
+    const links = [];
+    if(p.pmid) links.push(`<a href="https://pubmed.ncbi.nlm.nih.gov/${esc(p.pmid)}/" target="_blank" rel="noopener">PubMed原文</a>`);
+    else if(p.doi) links.push(`<a href="https://doi.org/${esc(p.doi)}" target="_blank" rel="noopener">看原文</a>`);
+
+    return `<div class="card">
+      <h3>${highlight(p.title, ts)}</h3>
+      <div class="by">${esc(authorStr)}${authorStr ? ' · ' : ''}${esc(src)}</div>
+      <div class="badges">${badges.join('')}</div>
+      <div class="actions">
+        <button class="primary" data-expand="${i}">看摘要和笔记</button>
+        ${links.join('')}
+        <button data-cite="${i}">复制引用</button>
+      </div>
+      <div class="detail" id="d${i}" hidden></div>
+    </div>`;
+  }).join('');
+
+  box.querySelectorAll('[data-expand]').forEach(el => {
+    el.addEventListener('click', () => {
+      const i = el.dataset.expand;
+      const p = rows[i];
+      const d = document.getElementById('d' + i);
+      if(!d.hidden){ d.hidden = true; el.textContent = '看摘要和笔记'; return; }
+      d.innerHTML =
+        (p.abstract ? `<h4>摘要</h4><pre>${esc(p.abstract)}</pre>` : '') +
+        (p.notes ? `<h4>科室笔记</h4><pre>${esc(p.notes)}</pre>` : '<h4>科室笔记</h4><pre>这篇还没有写笔记。</pre>') +
+        (p.doi ? `<h4>DOI</h4><pre>${esc(p.doi)}</pre>` : '');
+      d.hidden = false;
+      el.textContent = '收起';
+    });
+  });
+
+  box.querySelectorAll('[data-cite]').forEach(el => {
+    el.addEventListener('click', () => copyText(vancouver(rows[el.dataset.cite])));
+  });
+}
+
+function buildQuickButtons(){
+  const counts = {};
+  state.papers.forEach(p => (p.topics||[]).forEach(t => counts[t] = (counts[t]||0) + 1));
+  const top = Object.keys(counts).sort((a,b) => counts[b]-counts[a] || a.localeCompare(b,'zh')).slice(0, 10);
+  const box = document.getElementById('quick');
+  box.innerHTML = top.map(t =>
+    `<button data-topic="${esc(t)}">${esc(t)}（${counts[t]}）</button>`).join('');
+  box.querySelectorAll('[data-topic]').forEach(el => {
+    el.addEventListener('click', () => {
+      const t = el.dataset.topic;
+      const on = el.classList.contains('on');
+      box.querySelectorAll('[data-topic]').forEach(x => x.classList.remove('on'));
+      if(on){ activeTopic = ''; } else { activeTopic = t; el.classList.add('on'); }
+      render();
+    });
+  });
+}
+
+function fillTypes(){
+  const types = new Set();
+  state.papers.forEach(p => { if(p.type) types.add(p.type); });
+  const sel = document.getElementById('type');
+  [...types].sort().forEach(t => sel.add(new Option(t, t)));
+}
+
+async function boot(){
+  try{
+    let data = window.__LIT_DB_DATA__;
+    if(!data){
+      // 模板单独打开时的开发用回退；打包后的文件会内联数据，不会走这里
+      const res = await fetch('../index.json', {cache:'no-store'});
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      data = await res.json();
+    }
+    state.papers = data.papers || [];
+    const offline = !!window.__LIT_DB_DATA__;
+    document.getElementById('sub').textContent =
+      '共 ' + state.papers.length + ' 篇文献' + (offline ? ' · 离线版' : '') +
+      ' · 点击任意一篇即可查看摘要与科室笔记';
+    buildQuickButtons();
+    fillTypes();
+    render();
+  }catch(err){
+    document.getElementById('sub').textContent = '加载失败';
+    document.getElementById('results').innerHTML =
+      '<div class="err">没能读到文献数据（' + esc(err.message) + '）。<br><br>' +
+      '如果是直接用浏览器打开了本地文件，请改用部署好的网址，' +
+      '或在文献库目录里运行 <code>python scripts/serve.py</code> 后访问提示的网址。</div>';
+  }
+}
+
+document.getElementById('q').addEventListener('input', () => {
+  clearTimeout(window._t);
+  window._t = setTimeout(render, 120);
+});
+document.getElementById('type').addEventListener('change', render);
+
+boot();
+</script>
+</body>
+</html>

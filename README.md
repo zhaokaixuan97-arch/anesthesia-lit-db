@@ -33,8 +33,12 @@
 
 ```
 anesthesia-lit-db/
-├── index.html              # 网页检索界面（单文件，无外部依赖）
-├── index.json              # 由 build_index.py 生成的检索数据
+├── index.html              # 【自动生成】自包含网页，GitHub Pages 首页（名字不能改）
+├── dist/
+│   └── 玉泉医院麻醉科文献库.html  # 【自动生成】发给同事的那一个文件（同上内容）
+├── web/
+│   └── template.html       # 网页源码模板（改样式/文案改这里，名字可随意）
+├── index.json              # 由 build_index.py 生成的检索数据（供脚本/外部程序读取）
 ├── schema/
 │   ├── paper.schema.json   # 元数据字段定义
 │   └── topics.yaml         # 麻醉专科主题分类树（可扩充）
@@ -46,12 +50,16 @@ anesthesia-lit-db/
 │   ├── fetch_metadata.py   # 从 PubMed/Crossref 抓题录入库
 │   ├── validate.py         # 结构校验 + 隐私体检
 │   ├── build_index.py      # 生成 index.json / index.sqlite
+│   ├── build_web.py        # 打包成自包含单文件网页
+│   ├── make_qr.py          # 生成网页二维码
 │   ├── search.py           # 命令行检索
-│   └── serve.py            # 本地启动检索网页
+│   └── serve.py            # 本地启动检索网页（开发预览用）
 ├── mcp/
 │   └── server.py           # MCP 服务端，供 AI 客户端接入
-└── .github/workflows/      # 提交自动校验并重建索引
+└── .github/workflows/      # 提交自动校验并重建索引与网页
 ```
+
+> `index.html` 和 `dist/*.html` 都是**生成物**，不要手改——改 `web/template.html` 然后跑 `python scripts/build_web.py`。
 
 ---
 
@@ -105,21 +113,21 @@ python scripts/serve.py --lan           # 手机连同一 WiFi 可访问
 python scripts/build_web.py
 ```
 
-生成 `dist/麻醉科文献库.html`（约 60KB，**数据和界面都在一个文件里**）：
+生成 `dist/玉泉医院麻醉科文献库.html`（约 58KB，**CSS、JS、数据全部内联，零外部请求**）：
 
-- **双击就能打开**，不用装任何东西、不用联网
-- **直接发到微信群里**（同事点开 → 用浏览器打开）
+- **双击就能打开**，不用装任何东西、**断网也能用**
+- **直接发到微信群里**（就发这一个文件）
 - 页面上自带「怎么用（三步）」和「给会用 AI 的同事：怎么把文献库接到 AI 里」两段说明
 - 手机上字体够大、按钮够大，常见主题可以一键点选，不用打字
 
-**想放成网址（微信群发链接更方便）**：把仓库根目录的 `index.html` 和 `index.json` 一起上传到任意静态托管即可，不需要构建。
+**想放成网址（微信群发链接更方便）**：仓库根目录的 `index.html` **本身就是同一个自包含文件**，直接上传到任意静态托管即可，连 `index.json` 都不需要。
 
 | 托管方式 | 费用 | 国内访问 | 说明 |
 |---|---|---|---|
 | 阿里云 OSS / 腾讯云 COS 静态网站 | 约 1 元/月 | 快 | 需实名账号；默认域名即可，绑自有域名要备案 |
 | Cloudflare Pages | 免费 | 一般 | 可直接连私有仓库；可用 Access 做邮箱白名单 |
 | Netlify | 免费 | 一般 | 可直接连私有仓库 |
-| GitHub Pages | 免费 | 慢/不稳 | 私有仓库开 Pages 需 GitHub Pro |
+| GitHub Pages | 免费 | 慢/不稳 | 本仓库正在用；公开仓库免费，私有仓库需 Pro |
 
 > 注意：网页一旦放到公网，任何拿到链接的人都能看到**题录 + 摘要 + 科室笔记**。
 > 如果不想公开，就用单文件版在群里发文件，或让托管加上访问控制。
@@ -193,11 +201,12 @@ python mcp/server.py --selftest
 **Q：网页能不能直接给主任看？**
 可以。三种方式，按省事程度排：
 
-1. **单文件版**：`python scripts/build_web.py` 生成 `dist/麻醉科文献库.html`，发到群里，双击就能看。
-2. **局域网**：`python scripts/serve.py --lan`，同一 WiFi 下手机可访问。
-3. **放成网址**：把 `index.html` + `index.json` 上传到阿里云 OSS / Cloudflare Pages 等静态托管。
+1. **在线网址**：<https://zhaokaixuan97-arch.github.io/anesthesia-lit-db/>，微信里点一下就能打开（群里发 `assets/二维码.png` 也行）。
+2. **单文件版**：`python scripts/build_web.py` 生成 `dist/玉泉医院麻醉科文献库.html`，发到群里，双击就能看，断网也能用。
+3. **局域网**：`python scripts/serve.py --lan`，同一 WiFi 下手机可访问（开发预览用）。
 
-**注意**：私有仓库要开 GitHub Pages 需要 GitHub Pro/Team；也可以只把题录层公开（题录是公开信息，本身无版权问题），PDF 和敏感内容另外存。
+**Q：网页是不是完全独立、不依赖后端？**
+是。`index.html` 和 `dist/玉泉医院麻醉科文献库.html` **内容完全相同**，CSS、JS、数据全部内联，实测 `performance.getEntriesByType('resource')` 返回空数组——**运行时零网络请求**。没有服务器程序、没有数据库、没有 API。`index.json` 只是给脚本和外部程序读的，网页不需要它。
 
 **Q：文献 PDF 版权怎么办？**
 付费文献不要提交全文。要留全文就放对象存储，或只保存链接和自己的结构化笔记。OA 文献可以存链接。
