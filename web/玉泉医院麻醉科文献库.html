@@ -235,14 +235,15 @@
   </details>
 
   <details>
-    <summary>➕ 添加文献（填一个 DOI 就行）</summary>
+    <summary>➕ 添加文献（填一个 DOI 就行，无需登录）</summary>
     <div class="body">
-      <p>在下面填 <b>DOI 或 PMID</b>，点按钮会跳到 GitHub 的表单；确认提交后，机器人会自动去 PubMed 抓题录、建目录、写笔记模板，约 1 分钟后网页自动更新。</p>
+      <p>在下面填 <b>DOI 或 PMID</b>，点「提交到文献库」即可——<b>不用登录 GitHub</b>。页面会直接替你建一条「添加文献」请求，机器人自动去 PubMed 抓题录、建目录、写笔记模板，约 1 分钟后刷新本页就能看到新文献。</p>
       <div class="addbox">
         <input type="search" id="newdoi" placeholder="例如 10.1001/jama.2021.22647 或 34928310" autocomplete="off">
         <button id="newsubmit">提交到文献库</button>
       </div>
-      <p class="hint">需要登录 GitHub 账号，<b>建议在电脑上操作</b>——手机微信里登录 GitHub 容易卡住。</p>
+      <p id="addstatus" class="hint" style="min-height:1.2em"></p>
+      <p class="hint">机器人只认合法的 DOI/PMID，主题可留空（以后补）；命中隐私红线的内容会被自动拒绝，不会入库。</p>
     </div>
   </details>
 
@@ -589,14 +590,72 @@ if(window.IntersectionObserver){
   }, { threshold: 0.05 }).observe(document.getElementById('pager'));
 }
 
-// 「添加文献」：跳到 GitHub 表单，并把 DOI 预填进去
-const REPO_ISSUE_NEW = 'https://github.com/zhaokaixuan97-arch/anesthesia-lit-db/issues/new';
-function submitNewPaper(){
+// 「添加文献」：无需登录，直接用页面内嵌令牌替你建一条 Issue，机器人随后入库。
+// 令牌权限刻意收窄为「仅此仓库 · Issues 仅写」，最坏情况也只能往本库提 Issue，碰不到账号或其它仓库。
+// ⚠️ 轮换令牌：只需替换下面 ADD_TOKEN 这一行，然后重跑 python scripts/build_web.py 并推送。
+const ADD_API = 'https://api.github.com/repos/zhaokaixuan97-arch/anesthesia-lit-db/issues';
+const ADD_TOKEN = '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';
+const DOI_RE = /^10\.\d{4,9}\/\S+$/;
+const PMID_RE = /^\d{6,9}$/;
+
+function normalizeIdent(raw){
+  let t = (raw || '').trim().split(/\s+/)[0] || '';
+  t = t.replace(/^https?:\/\/(dx\.)?doi\.org\//i, '');
+  t = t.replace(/^doi:\s*/i, '');
+  t = t.replace(/[.,;)]+$/, '');
+  return t;
+}
+
+async function submitNewPaper(){
   const input = document.getElementById('newdoi');
-  const v = (input.value || '').trim();
-  const params = new URLSearchParams({template: '添加文献.yml'});
-  if(v) params.set('doi', v);
-  window.open(REPO_ISSUE_NEW + '?' + params.toString(), '_blank', 'noopener');
+  const status = document.getElementById('addstatus');
+  const btn = document.getElementById('newsubmit');
+  const ident = normalizeIdent(input.value);
+  if(!ident){ status.textContent = '请先填一个 DOI 或 PMID。'; return; }
+  if(!(DOI_RE.test(ident) || PMID_RE.test(ident))){
+    status.textContent = '格式不像合法的 DOI（10.xxxx/…）或 PMID（6–9 位数字），请检查。';
+    return;
+  }
+  if(ADD_TOKEN.indexOf('__PASTE') === 0){
+    status.textContent = '提交入口尚未配置令牌，请联系管理员在网页里填入访问令牌。';
+    return;
+  }
+  const body = '### DOI 或 PMID\n\n' + ident +
+               '\n\n### 主要主题（可不选）\n\n（不指定）' +
+               '\n\n### 备注（可不填）\n\n（来自文献库网页免登录提交）';
+  btn.disabled = true;
+  status.textContent = '正在提交…';
+  try{
+    const res = await fetch(ADD_API, {
+      method: 'POST',
+      headers: {
+        'Authorization': 'Bearer ' + ADD_TOKEN,
+        'Accept': 'application/vnd.github+json',
+        'X-GitHub-Api-Version': '2022-11-28',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        title: '[添加文献] ' + ident,
+        body: body,
+        labels: ['添加文献']
+      })
+    });
+    if(res.status === 201){
+      const data = await res.json();
+      status.innerHTML = '✅ 已提交，机器人正在抓取入库，约 1 分钟后刷新本页即可看到。' +
+        (data.html_url ? ' <a href="' + data.html_url + '" target="_blank" rel="noopener">查看进度</a>' : '');
+      input.value = '';
+    }else if(res.status === 401 || res.status === 403){
+      status.textContent = '❌ 令牌无效或权限不足（' + res.status + '），请联系管理员。';
+    }else{
+      const t = await res.text();
+      status.textContent = '❌ 提交失败（HTTP ' + res.status + '）：' + t.slice(0, 120);
+    }
+  }catch(err){
+    status.textContent = '❌ 网络或跨域错误：' + err.message;
+  }finally{
+    btn.disabled = false;
+  }
 }
 document.getElementById('newsubmit').addEventListener('click', submitNewPaper);
 document.getElementById('newdoi').addEventListener('keydown', e => {
