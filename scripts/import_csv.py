@@ -132,7 +132,7 @@ def build_record(row: dict, base_topic: str | None, added_by: str, idx: int) -> 
         "url": url,
         "pdf": None,
         "language": LANG_MAP.get((row.get("language") or "").strip().lower(), "en"),
-        "status": "draft",
+        "status": "reviewed",
         "added_by": added_by,
         "added_date": fm._dt.date.today().isoformat(),
         "updated_date": fm._dt.date.today().isoformat(),

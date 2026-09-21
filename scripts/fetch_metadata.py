@@ -318,7 +318,7 @@ def build_record(raw_id: str, topics: list[str], added_by: str, relevance: int) 
                (f"https://pubmed.ncbi.nlm.nih.gov/{base['pmid']}/" if base.get("pmid") else ""),
         "pdf": None,
         "language": "en",
-        "status": "draft",
+        "status": "reviewed",
         "added_by": added_by,
         "added_date": today,
         "updated_date": today,
