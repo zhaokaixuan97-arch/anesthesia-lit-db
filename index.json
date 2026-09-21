@@ -4,16 +4,16 @@
   "papers": 101,
   "papers_files": 202,
   "papers_bytes": 604360,
-  "index_bytes": 644013,
+  "index_bytes": 644313,
   "avg_bytes": 5983,
-  "repo_bytes": 0,
-  "per_paper_bytes": 35898,
+  "repo_bytes": 1131520,
+  "per_paper_bytes": 11203,
   "limit_bytes": 1073741824,
-  "used_bytes": 1248373,
-  "used_pct": 0.116,
-  "remaining_bytes": 1072493451,
-  "remaining_papers": 29876,
-  "basis": "estimate"
+  "used_bytes": 1131520,
+  "used_pct": 0.105,
+  "remaining_bytes": 1072610304,
+  "remaining_papers": 95743,
+  "basis": "repo"
  },
  "papers": [
   {
