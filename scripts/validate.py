@@ -29,7 +29,8 @@ ROOT = Path(__file__).resolve().parent.parent
 PAPERS_DIR = ROOT / "papers"
 TOPICS_FILE = ROOT / "schema" / "topics.yaml"
 
-REQUIRED_FIELDS = ["id", "title", "authors", "year", "type", "topics", "status"]
+# 注意：topics 不在必填之列——Issue 表单里主题「可不选」，允许先入库、后补主题。
+REQUIRED_FIELDS = ["id", "title", "authors", "year", "type", "status"]
 ENUMS = {
     "type": {"RCT", "Meta-analysis", "Systematic review", "Guideline", "Review",
              "Observational", "Case report", "Editorial", "Basic science", "Other"},
@@ -142,6 +143,8 @@ def validate_paper(path: Path, leaves: set[str]) -> tuple[list[str], list[str], 
         for t in topics:
             if t not in leaves:
                 errors.append(f"{path}: 主题 `{t}` 不在 schema/topics.yaml 的叶子主题中")
+        if not topics:
+            warnings.append(f"{path}: 未指定主题（可后续补充）")
 
     for field in ("added_date", "updated_date"):
         val = meta.get(field)

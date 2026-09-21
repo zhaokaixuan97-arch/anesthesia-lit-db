@@ -4,7 +4,7 @@
   "title": "麻醉科文献库 — 单篇文献元数据",
   "description": "papers/<id>/meta.yaml 的字段定义。只允许存放公开出版物信息，严禁写入患者信息。",
   "type": "object",
-  "required": ["id", "title", "authors", "year", "type", "topics", "status"],
+  "required": ["id", "title", "authors", "year", "type", "status"],
   "additionalProperties": false,
   "properties": {
     "id": {
@@ -45,8 +45,8 @@
     "topics": {
       "type": "array",
       "items": { "type": "string" },
-      "minItems": 1,
-      "description": "必须取自 schema/topics.yaml 中定义的叶子主题"
+      "minItems": 0,
+      "description": "取自 schema/topics.yaml 中定义的叶子主题；Issue 表单里主题可不选，允许先入库后补，故允许为空"
     },
     "tags": {
       "type": "array",
