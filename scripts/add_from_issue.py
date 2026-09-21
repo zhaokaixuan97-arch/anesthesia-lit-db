@@ -159,9 +159,10 @@ def main() -> int:
     (target / "notes.md").write_text(
         fm.render_notes(record, f"@{author}"), encoding="utf-8", newline="\n")
 
-    # 写完立刻做一次隐私/结构体检；红线告警就整个回滚
+    # 写完立刻做一次隐私/结构体检；只校验本次新增这一篇，避免被全库其它问题连坐回滚。
+    # 红线告警就整个回滚。
     check = subprocess.run(
-        [sys.executable, str(ROOT / "scripts" / "validate.py")],
+        [sys.executable, str(ROOT / "scripts" / "validate.py"), "--only", record["id"]],
         capture_output=True, text=True, cwd=str(ROOT),
     )
     if check.returncode != 0:

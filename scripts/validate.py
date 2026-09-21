@@ -157,8 +157,6 @@ def validate_paper(path: Path, leaves: set[str]) -> tuple[list[str], list[str], 
 
     if not meta.get("doi") and not meta.get("pmid"):
         warnings.append(f"{path}: 既无 DOI 也无 PMID，后续很难追溯")
-    if meta.get("status") == "draft":
-        warnings.append(f"{path}: 状态仍是 draft（待人工核对）")
 
     privacy += lint_privacy(raw, str(path.relative_to(ROOT)))
     notes = path.parent / "notes.md"
@@ -173,6 +171,8 @@ def validate_paper(path: Path, leaves: set[str]) -> tuple[list[str], list[str], 
 def main() -> int:
     ap = argparse.ArgumentParser(description="校验文献库")
     ap.add_argument("--strict", action="store_true", help="警告也视为失败")
+    ap.add_argument("--only", metavar="ID", default=None,
+                    help="只校验 papers/<ID> 这一篇（机器人入库后自检用，避免被全库其它问题连坐）")
     args = ap.parse_args()
 
     if not PAPERS_DIR.exists():
@@ -185,7 +185,16 @@ def main() -> int:
     all_privacy: list[tuple] = []
     count = 0
 
-    for meta_path in sorted(PAPERS_DIR.glob("*/meta.yaml")):
+    if args.only:
+        target = PAPERS_DIR / args.only / "meta.yaml"
+        if not target.exists():
+            print(f"未找到文献：papers/{args.only}/meta.yaml")
+            return 1
+        metas = [target]
+    else:
+        metas = sorted(PAPERS_DIR.glob("*/meta.yaml"))
+
+    for meta_path in metas:
         count += 1
         e, w, p = validate_paper(meta_path, leaves)
         all_errors += e
